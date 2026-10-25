@@ -1,12 +1,14 @@
--- [[ CYBER ENGINE X.4 - SPEED, ANTI-DETECT & PLOT UTILITIES ]] --
+-- [[ CYBER ENGINE X.7 - AUTO COLLECT EGG & MAGNET ]] --
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
 local Player = Players.LocalPlayer
 
--- ULTRA BYPASS & ANTI-KICK SHIELD (MENUTUPI ERROR KICK SERVER)
+-- ULTRA BYPASS & ANTI-KICK SHIELD
 pcall(function()
     local mt = getrawmetatable(game)
     if mt then
@@ -32,25 +34,48 @@ if not success or not Rayfield then
 end
 
 local Window = Rayfield:CreateWindow({
-   Name = "⚡ Cyber Engine X.4 // Speed & Plot Hub",
-   LoadingTitle = "Memuat Sistem Kecepatan...",
+   Name = "⚡ Cyber Engine X.7 // Auto Collect Egg",
+   LoadingTitle = "Memuat Sistem Pengumpul Telur...",
    LoadingSubtitle = "by Cyber Engine",
    ConfigurationSaving = { Enabled = false },
    KeySystem = false, 
 })
 
+local EggTab = Window:CreateTab("🥚 Auto Collect Egg", 4483362458)
 local SpeedTab = Window:CreateTab("🚀 Speed & Movement", 4483362458)
-local PlotTab = Window:CreateTab("🏡 Plot & Safe Zone", 4483362458)
-local MiscTab = Window:CreateTab("🛡️ Security & Anti-Detect", 4483362458)
+local PlotTab = Window:CreateTab("🏡 Auto Plot & Base", 4483362458)
+local UtilityTab = Window:CreateTab("🛠️ Useful Features", 4483362458)
+local MiscTab = Window:CreateTab("🛡️ Security & Misc", 4483362458)
 
 local walkSpeedVal = 16
-local jumpPowerVal = 50
 local isSpeedEnabled = false
 local isInfiniteJump = false
-local customPlotPos = nil
+local isNoclipActive = false
+local isAutoCollectEgg = false
+local isMagnetEgg = false
+local noclipConnection = nil
 
--- TAB 1: SPEED & MOVEMENT
-SpeedTab:CreateSection("⚡ Pengaturan Kecepatan Anti-Detect")
+-- TAB 1: AUTO COLLECT EGG (FITUR UTAMA BARU)
+EggTab:CreateSection("🥚 Pengumpulan Telur Otomatis")
+
+EggTab:CreateToggle({
+   Name = "🥚 Auto Collect Egg (Ambil Telur Sekitar)",
+   CurrentValue = false,
+   Callback = function(Value)
+      isAutoCollectEgg = Value
+   end,
+})
+
+EggTab:CreateToggle({
+   Name = "🧲 Magnet Egg (Tarik Telur ke Karakter)",
+   CurrentValue = false,
+   Callback = function(Value)
+      isMagnetEgg = Value
+   end,
+})
+
+-- TAB 2: SPEED & MOVEMENT
+SpeedTab:CreateSection("⚡ Pengaturan Kecepatan")
 
 SpeedTab:CreateToggle({
    Name = "Aktifkan Custom WalkSpeed",
@@ -72,101 +97,25 @@ SpeedTab:CreateSlider({
 })
 
 SpeedTab:CreateToggle({
-   Name = "🚀 Infinite Jump (Loncat Terus Menerus)",
+   Name = "🚀 Infinite Jump (Loncat Di Udara)",
    CurrentValue = false,
    Callback = function(Value)
       isInfiniteJump = Value
    end,
 })
 
--- TAB 2: PLOT & SAFE ZONE MANAGEMENT
-PlotTab:CreateSection("🏡 Pengelolaan Plot & Teleport Base")
+-- TAB 3: AUTO PLOT & INSTANT TELEPORT
+PlotTab:CreateSection("🏡 Teleport Instan ke Plot / Base")
 
 PlotTab:CreateButton({
-   Name = "📍 Set Posisi Plot / Base Saya",
+   Name = "🏠 Teleport Langsung ke Plot / Base Saya",
    Callback = function()
       pcall(function()
          local char = Player.Character
-         if char and char:FindFirstChild("HumanoidRootPart") then
-            customPlotPos = char.HumanoidRootPart.CFrame
-            Rayfield:Notify({ Title = "Plot Disimpan!", Content = "Titik koordinat base kamu berhasil dikunci.", Duration = 3 })
-         end
-      end)
-   end,
-})
+         if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+         local hrp = char.HumanoidRootPart
+         local targetCFrame = nil
 
-PlotTab:CreateButton({
-   Name = "🏠 Teleport Instan Pulang ke Plot / Base",
-   Callback = function()
-      pcall(function()
-         local char = Player.Character
-         if char and char:FindFirstChild("HumanoidRootPart") and customPlotPos then
-            char.HumanoidRootPart.CFrame = customPlotPos
-            Rayfield:Notify({ Title = "Berhasil Pulang!", Content = "Karakter dipindahkan kembali ke plot.", Duration = 2 })
-         else
-            Rayfield:Notify({ Title = "Gagal!", Content = "Harap Set Posisi Plot terlebih dahulu!", Duration = 3 })
-         end
-      end)
-   end,
-})
-
--- TAB 3: SECURITY & ANTI-DETECT
-MiscTab:CreateSection("🛡️ Perlindungan Akun & Server Bypass")
-
-MiscTab:CreateToggle({
-   Name = "🛡️ God Mode (Anti-Damage HP Penuh)",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.GodMode = Value
-   end,
-})
-
-MiscTab:CreateButton({
-   Name = "🔄 Rejoin Server (Anti-Lag / Refresh)",
-   Callback = function()
-      game:GetService("TeleportService"):Teleport(game.PlaceId, Player)
-   end,
-})
-
--- LOOP UTAMA UNTUK SPEED HACK & INFINITE JUMP
-RunService.Heartbeat:Connect(function()
-    pcall(function()
-        local char = Player.Character
-        if not char then return end
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        
-        if hum then
-            if isSpeedEnabled then
-                hum.WalkSpeed = walkSpeedVal
-            else
-                hum.WalkSpeed = 16
-            end
-            
-            if _G.GodMode then
-                hum.Health = hum.MaxHealth
-            end
-        end
-    end)
-end)
-
-UserInputService.JumpRequest:Connect(function()
-    pcall(function()
-        if isInfiniteJump then
-            local char = Player.Character
-            if char then
-                local hum = char:FindFirstChildOfClass("Humanoid")
-                if hum then
-                    hum:ChangeState(Enum.HumanoidStateType.Jumping)
-                end
-            end
-        end
-    end)
-end)
-
-Rayfield:Notify({
-   Title = "Cyber Engine X.4 Aktif",
-   Content = "Speed, Plot Teleport & Anti-Detect Siap Digunakan!",
-   Duration = 5,
-   Image = 4483362458,
-})
+         for _, obj in pairs(Workspace:GetDescendants()) do
+             pcall(function()
+                 if obj and (obj:IsA("Model") or obj:IsA("Folder") or obj:IsA("BasePart")) then
