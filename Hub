@@ -1,4 +1,4 @@
--- [[ CYBER ENGINE X.2 - DIRECT EXECUTE UI ]] --
+-- [[ CYBER ENGINE X.3 - ANTI-LAG & FAST TELEPORT ]] --
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -23,7 +23,6 @@ pcall(function()
     end
 end)
 
--- LOAD RAYFIELD
 local success, Rayfield = pcall(function()
     return loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 end)
@@ -33,14 +32,14 @@ if not success or not Rayfield then
 end
 
 local Window = Rayfield:CreateWindow({
-   Name = "⚡ Cyber Engine X.2 // Multi-Zone Pro",
-   LoadingTitle = "Memuat Sistem 11 Wilayah...",
+   Name = "⚡ Cyber Engine X.3 // Anti-Lag Pro",
+   LoadingTitle = "Memuat Mesin Anti-Lag...",
    LoadingSubtitle = "by Cyber Engine",
    ConfigurationSaving = { Enabled = false },
    KeySystem = false, 
 })
 
-local MainTab = Window:CreateTab("🥚 Zone Farm Selector", 4483362458)
+local MainTab = Window:CreateTab("🥚 Fast Zone Farm", 4483362458)
 local ConfigTab = Window:CreateTab("🚀 Base & Settings", 4483362458)
 
 local isAutoEgg = false
@@ -50,20 +49,12 @@ local customBasePos = nil
 local farmedCache = {}
 
 local selectedZones = {
-    Forest = false,
-    Dune = false,
-    Swamp = false,
-    Mushroom = false,
-    Ocean = false,
-    Lava = false,
-    Snow = false,
-    DragonRuins = false,
-    Jurassic = false,
-    Mutant = false,
-    Galaxy = false,
+    Forest = false, Dune = false, Swamp = false, Mushroom = false,
+    Ocean = false, Lava = false, Snow = false, DragonRuins = false,
+    Jurassic = false, Mutant = false, Galaxy = false,
 }
 
-MainTab:CreateSection("🌍 Pilih Wilayah / Zone Farming")
+MainTab:CreateSection("🌍 Pilih Wilayah / Zone Farming (Pilih Salah Satu/Lebih)")
 MainTab:CreateToggle({ Name = "🌲 1. Forest Zone", CurrentValue = false, Callback = function(v) selectedZones.Forest = v end })
 MainTab:CreateToggle({ Name = "🏜️ 2. Dune Zone", CurrentValue = false, Callback = function(v) selectedZones.Dune = v end })
 MainTab:CreateToggle({ Name = "🟢 3. Swamp Zone", CurrentValue = false, Callback = function(v) selectedZones.Swamp = v end })
@@ -78,7 +69,7 @@ MainTab:CreateToggle({ Name = "🌌 11. Galaxy Zone", CurrentValue = false, Call
 
 MainTab:CreateSection("⚙️ Kontrol Utama")
 MainTab:CreateToggle({
-   Name = "🚀 EKSEKUSI AUTO FARM WILAYAH",
+   Name = "🚀 EKSEKUSI AUTO FARM ANTI-LAG",
    CurrentValue = false,
    Callback = function(Value)
       isAutoEgg = Value
@@ -118,25 +109,9 @@ ConfigTab:CreateInput({
 
 local function isInsideSafeZone(pos)
     if customBasePos then
-        if (pos - customBasePos.Position).Magnitude < 80 then
+        if (pos - customBasePos.Position).Magnitude < 70 then
             return true
         end
-    end
-
-    for _, obj in pairs(Workspace:GetDescendants()) do
-        pcall(function()
-            if obj and (obj:IsA("BasePart") or obj:IsA("Model")) then
-                local name = obj.Name:lower()
-                if name:find("safe") or (name:find("zone") and (name:find("base") or name:find("plot"))) then
-                    local part = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or obj
-                    if part and part:IsA("BasePart") then
-                        if (pos - part.Position).Magnitude < 55 then
-                            return true
-                        end
-                    end
-                end
-            end
-        end)
     end
     return false
 end
@@ -155,23 +130,24 @@ local function matchesSelectedZone(obj)
         curr = curr.Parent
     end
 
-    if selectedZones.Forest and (fullName:find("forest") or fullName:find(" kayu ")) then return true end
-    if selectedZones.Dune and (fullName:find("dune") or fullName:find("desert") or fullName:find("pasir")) then return true end
-    if selectedZones.Swamp and (fullName:find("swamp") or fullName:find("rawa")) then return true end
-    if selectedZones.Mushroom and (fullName:find("mushroom") or fullName:find("jamur")) then return true end
-    if selectedZones.Ocean and (fullName:find("ocean") or fullName:find("water") or fullName:find("sea") or fullName:find("laut")) then return true end
-    if selectedZones.Lava and (fullName:find("lava") or fullName:find("volcano") or fullName:find("api")) then return true end
-    if selectedZones.Snow and (fullName:find("snow") or fullName:find("ice") or fullName:find("winter") or fullName:find("salju")) then return true end
-    if selectedZones.DragonRuins and (fullName:find("dragon") or fullName:find("ruins") or fullName:find("naga")) then return true end
-    if selectedZones.Jurassic and (fullName:find("jurassic") or fullName:find("dino")) then return true end
-    if selectedZones.Mutant and (fullName:find("mutant") or fullName:find("toxic") or fullName:find("radioactive")) then return true end
-    if selectedZones.Galaxy and (fullName:find("galaxy") or fullName:find("space") or fullName:find("cosmic") or fullName:find(" bintang ")) then return true end
+    if selectedZones.Forest and fullName:find("forest") then return true end
+    if selectedZones.Dune and (fullName:find("dune") or fullName:find("desert")) then return true end
+    if selectedZones.Swamp and fullName:find("swamp") then return true end
+    if selectedZones.Mushroom and fullName:find("mushroom") then return true end
+    if selectedZones.Ocean and (fullName:find("ocean") or fullName:find("water") or fullName:find("sea")) then return true end
+    if selectedZones.Lava and (fullName:find("lava") or fullName:find("volcano")) then return true end
+    if selectedZones.Snow and (fullName:find("snow") or fullName:find("ice")) then return true end
+    if selectedZones.DragonRuins and (fullName:find("dragon") or fullName:find("ruins")) then return true end
+    if selectedZones.Jurassic and fullName:find("jurassic") then return true end
+    if selectedZones.Mutant and (fullName:find("mutant") or fullName:find("toxic")) then return true end
+    if selectedZones.Galaxy and (fullName:find("galaxy") or fullName:find("space")) then return true end
 
     return false
 end
 
+-- LOGIKA FARMING RINGAN & ANTI-LAG
 task.spawn(function()
-    while task.wait(1.2) do
+    while task.wait(1.0) do
         pcall(function()
             if not isAutoEgg then return end
             local char = Player.Character
@@ -181,55 +157,58 @@ task.spawn(function()
 
             local baseCFrame = customBasePos or hrp.CFrame
 
-            for _, obj in pairs(Workspace:GetDescendants()) do
+            -- Ambil hanya objek yang relevan di workspace tanpa meload semuanya secara berlebihan
+            for _, obj in pairs(Workspace:GetChildren()) do
                 if not isAutoEgg then break end
                 pcall(function()
-                    if obj and (obj:IsA("Model") or obj:IsA("BasePart")) then
-                        local name = obj.Name:lower()
-                        
-                        if (name:find("egg") or name:find("telur") or name:find("nest")) 
-                           and not name:find("player") 
-                           and not name:find("character") 
-                           and not name:find("ui") then
-                            
-                            local part = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or obj
-                            if part and part:IsA("BasePart") and part.Position.Y > -30 then
-                                
-                                local inSafe = isInsideSafeZone(part.Position)
-                                local inCorrectZone = matchesSelectedZone(obj)
+                    -- Cek folder zona atau langsung ke objek telur
+                    local targets = obj:IsA("Model") or obj:IsA("Folder") and obj:GetDescendants() or {obj}
+                    for _, targetObj in pairs(targets) do
+                        if not isAutoEgg then break end
+                        if targetObj and (targetObj:IsA("Model") or targetObj:IsA("BasePart")) then
+                            local name = targetObj.Name:lower()
+                            if (name:find("egg") or name:find("telur") or name:find("nest")) and not name:find("player") then
+                                local part = targetObj:IsA("Model") and (targetObj.PrimaryPart or targetObj:FindFirstChildWhichIsA("BasePart")) or targetObj
+                                if part and part:IsA("BasePart") and part.Position.Y > -30 then
+                                    
+                                    if not isInsideSafeZone(part.Position) and matchesSelectedZone(targetObj) then
+                                        if not farmedCache[part] or (tick() - farmedCache[part] > 6) then
+                                            farmedCache[part] = tick()
 
-                                if not inSafe and inCorrectZone and (not farmedCache[part] or (tick() - farmedCache[part] > 8)) then
-                                    farmedCache[part] = tick()
+                                            -- 1. TELEPORT KE TELUR
+                                            hrp.CFrame = part.CFrame * CFrame.new(0, 3, 0)
+                                            task.wait(0.2)
 
-                                    hrp.CFrame = part.CFrame * CFrame.new(0, 3, 0)
-                                    task.wait(0.35)
-
-                                    local prompt = obj:FindFirstChildWhichIsA("ProximityPrompt", true) or part:FindFirstChildWhichIsA("ProximityPrompt", true)
-                                    if prompt and fireproximityprompt then
-                                        fireproximityprompt(prompt)
-                                    end
-
-                                    for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
-                                        if remote:IsA("RemoteEvent") then
-                                            local rName = remote.Name:lower()
-                                            if rName:find("egg") or rName:find("pickup") or rName:find("collect") or rName:find("claim") then
-                                                pcall(function()
-                                                    remote:FireServer(obj)
-                                                    remote:FireServer(part)
-                                                end)
+                                            -- 2. PROXIMITY PROMPT & REMOTE EVENT
+                                            local prompt = targetObj:FindFirstChildWhichIsA("ProximityPrompt", true) or part:FindFirstChildWhichIsA("ProximityPrompt", true)
+                                            if prompt and fireproximityprompt then
+                                                fireproximityprompt(prompt)
                                             end
+
+                                            for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
+                                                if remote:IsA("RemoteEvent") then
+                                                    local rName = remote.Name:lower()
+                                                    if rName:find("egg") or rName:find("pickup") or rName:find("collect") then
+                                                        pcall(function() remote:FireServer(targetObj) remote:FireServer(part) end)
+                                                    end
+                                                end
+                                            end
+
+                                            if firetouchinterest then
+                                                firetouchinterest(hrp, part, 0)
+                                                task.wait(0.05)
+                                                firetouchinterest(hrp, part, 1)
+                                            end
+
+                                            -- 3. JEDA SEBENTAR SUPAYA MASUK TAS
+                                            task.wait(0.4)
+
+                                            -- 4. PULANG KE BASE
+                                            hrp.CFrame = baseCFrame
+                                            task.wait(0.5)
+                                            break
                                         end
                                     end
-
-                                    if firetouchinterest then
-                                        firetouchinterest(hrp, part, 0)
-                                        task.wait(0.08)
-                                        firetouchinterest(hrp, part, 1)
-                                    end
-
-                                    task.wait(0.6)
-                                    hrp.CFrame = baseCFrame
-                                    task.wait(0.8)
                                 end
                             end
                         end
@@ -253,8 +232,8 @@ RunService.Heartbeat:Connect(function()
 end)
 
 Rayfield:Notify({
-   Title = "Cyber Engine X.2 Aktif",
-   Content = "GUI 11 Wilayah Berhasil Dimuat!",
+   Title = "Cyber Engine X.3 Aktif",
+   Content = "Mode Anti-Lag & Fast Teleport Berhasil!",
    Duration = 5,
    Image = 4483362458,
 })
